@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agent API Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .test-section {
+            border: 1px solid #ddd;
+            margin: 20px 0;
+            padding: 20px;
+            border-radius: 5px;
+        }
+        .test-section h3 {
+            margin-top: 0;
+            color: #333;
+        }
+        input, button {
+            margin: 5px;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+        }
+        button {
+            background: #007bff;
+            color: white;
+            cursor: pointer;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+        .response {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 3px;
+            white-space: pre-wrap;
+            font-family: monospace;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .success {
+            background: #d4edda;
+            border-color: #c3e6cb;
+            color: #155724;
+        }
+        .error {
+            background: #f8d7da;
+            border-color: #f5c6cb;
+            color: #721c24;
+        }
+    </style>
+</head>
+<body>
+    <h1>Agent API Test</h1>
+    
+    <div class="test-section">
+        <h3>1. Send OTP</h3>
+        <input type="text" id="sendOtpPhone" placeholder="Phone Number (10 digits)" value="9876543210">
+        <button onclick="sendOtp()">Send OTP</button>
+        <div id="sendOtpResponse" class="response"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>2. Verify OTP</h3>
+        <input type="text" id="verifyOtpPhone" placeholder="Phone Number" value="9876543210">
+        <input type="text" id="verifyOtpCode" placeholder="OTP Code" value="123456">
+        <button onclick="verifyOtp()">Verify OTP</button>
+        <div id="verifyOtpResponse" class="response"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>3. Register Agent</h3>
+        <input type="text" id="regName" placeholder="Name" value="Test Agent">
+        <input type="text" id="regPhone" placeholder="Phone Number" value="9876543210">
+        <input type="email" id="regEmail" placeholder="Email" value="agent@test.com">
+        <input type="password" id="regPassword" placeholder="Password" value="password123">
+        <input type="text" id="regOtp" placeholder="OTP" value="123456">
+        <button onclick="registerAgent()">Register Agent</button>
+        <div id="registerResponse" class="response"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>4. Agent Login</h3>
+        <input type="text" id="loginPhone" placeholder="Phone Number" value="9876543210">
+        <input type="password" id="loginPassword" placeholder="Password" value="password123">
+        <button onclick="loginAgent()">Login</button>
+        <div id="loginResponse" class="response"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>5. Get Profile (Requires Token)</h3>
+        <input type="text" id="profileToken" placeholder="JWT Token">
+        <button onclick="getProfile()">Get Profile</button>
+        <div id="profileResponse" class="response"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>6. Complete Profile (Requires Token)</h3>
+        <input type="text" id="completeToken" placeholder="JWT Token">
+        <input type="text" id="completeAddress" placeholder="Address" value="123 Test Street">
+        <input type="text" id="completeCity" placeholder="City" value="Mumbai">
+        <input type="text" id="completeState" placeholder="State" value="Maharashtra">
+        <input type="text" id="completePincode" placeholder="Pincode" value="400001">
+        <button onclick="completeProfile()">Complete Profile</button>
+        <div id="completeResponse" class="response"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>7. Update Profile (Requires Token)</h3>
+        <input type="text" id="updateToken" placeholder="JWT Token">
+        <input type="text" id="updateName" placeholder="Name" value="Updated Agent Name">
+        <input type="email" id="updateEmail" placeholder="Email" value="updated@test.com">
+        <button onclick="updateProfile()">Update Profile</button>
+        <div id="updateResponse" class="response"></div>
+    </div>
+
+    <div class="test-section">
+        <h3>8. Logout (Requires Token)</h3>
+        <input type="text" id="logoutToken" placeholder="JWT Token">
+        <button onclick="logoutAgent()">Logout</button>
+        <div id="logoutResponse" class="response"></div>
+    </div>
+
+    <script>
+        const BASE_URL = 'http://192.168.1.41:8000/api/v1';
+
+        function showResponse(elementId, data, isError = false) {
+            const element = document.getElementById(elementId);
+            element.textContent = JSON.stringify(data, null, 2);
+            element.className = 'response ' + (isError ? 'error' : 'success');
+        }
+
+        async function makeRequest(url, method = 'GET', body = null, token = null) {
+            const headers = {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            };
+            
+            if (token) {
+                headers['Authorization'] = `Bearer ${token}`;
+            }
+
+            const options = {
+                method,
+                headers
+            };
+
+            if (body) {
+                options.body = JSON.stringify(body);
+            }
+
+            try {
+                const response = await fetch(url, options);
+                const data = await response.json();
+                return { success: response.ok, data, status: response.status };
+            } catch (error) {
+                return { success: false, data: { error: error.message }, status: 0 };
+            }
+        }
+
+        async function sendOtp() {
+            const phone = document.getElementById('sendOtpPhone').value;
+            const result = await makeRequest(`${BASE_URL}/agent/send-otp`, 'POST', { phone_number: phone });
+            showResponse('sendOtpResponse', result.data, !result.success);
+        }
+
+        async function verifyOtp() {
+            const phone = document.getElementById('verifyOtpPhone').value;
+            const otp = document.getElementById('verifyOtpCode').value;
+            const result = await makeRequest(`${BASE_URL}/agent/verify-otp`, 'POST', { 
+                phone_number: phone, 
+                otp: otp 
+            });
+            showResponse('verifyOtpResponse', result.data, !result.success);
+        }
+
+        async function registerAgent() {
+            const name = document.getElementById('regName').value;
+            const phone = document.getElementById('regPhone').value;
+            const email = document.getElementById('regEmail').value;
+            const password = document.getElementById('regPassword').value;
+            const otp = document.getElementById('regOtp').value;
+            
+            const result = await makeRequest(`${BASE_URL}/agent/register`, 'POST', {
+                name,
+                phone_number: phone,
+                email,
+                password,
+                otp
+            });
+            showResponse('registerResponse', result.data, !result.success);
+        }
+
+        async function loginAgent() {
+            const phone = document.getElementById('loginPhone').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            const result = await makeRequest(`${BASE_URL}/agent/login`, 'POST', {
+                phone_number: phone,
+                password
+            });
+            
+            if (result.success && result.data.data && result.data.data.token) {
+                // Auto-fill token fields
+                document.getElementById('profileToken').value = result.data.data.token;
+                document.getElementById('completeToken').value = result.data.data.token;
+                document.getElementById('updateToken').value = result.data.data.token;
+                document.getElementById('logoutToken').value = result.data.data.token;
+            }
+            
+            showResponse('loginResponse', result.data, !result.success);
+        }
+
+        async function getProfile() {
+            const token = document.getElementById('profileToken').value;
+            const result = await makeRequest(`${BASE_URL}/agent/profile`, 'GET', null, token);
+            showResponse('profileResponse', result.data, !result.success);
+        }
+
+        async function completeProfile() {
+            const token = document.getElementById('completeToken').value;
+            const address = document.getElementById('completeAddress').value;
+            const city = document.getElementById('completeCity').value;
+            const state = document.getElementById('completeState').value;
+            const pincode = document.getElementById('completePincode').value;
+            
+            const result = await makeRequest(`${BASE_URL}/agent/profile/complete`, 'POST', {
+                address,
+                city,
+                state,
+                pincode
+            }, token);
+            showResponse('completeResponse', result.data, !result.success);
+        }
+
+        async function updateProfile() {
+            const token = document.getElementById('updateToken').value;
+            const name = document.getElementById('updateName').value;
+            const email = document.getElementById('updateEmail').value;
+            
+            const result = await makeRequest(`${BASE_URL}/agent/profile`, 'PATCH', {
+                name,
+                email
+            }, token);
+            showResponse('updateResponse', result.data, !result.success);
+        }
+
+        async function logoutAgent() {
+            const token = document.getElementById('logoutToken').value;
+            const result = await makeRequest(`${BASE_URL}/agent/logout`, 'POST', null, token);
+            showResponse('logoutResponse', result.data, !result.success);
+        }
+    </script>
+</body>
+</html> 

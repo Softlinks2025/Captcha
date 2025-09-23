@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>API Test</title>
+    <script>
+        async function testEndpoint() {
+            try {
+                const response = await fetch('http://localhost:8000/api/direct-test');
+                const data = await response.json();
+                document.getElementById('result').textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                document.getElementById('result').textContent = 'Error: ' + error.message;
+            }
+        }
+    </script>
+</head>
+<body>
+    <h1>API Test</h1>
+    <button onclick="testEndpoint()">Test Direct Endpoint</button>
+    <pre id="result">Click the button to test the API</pre>
+</body>
+</html>

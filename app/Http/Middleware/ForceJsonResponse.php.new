@@ -1,0 +1,74 @@
+<?php
+
+namespace App\Http\Middleware;
+
+use Closure;
+use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
+
+class ForceJsonResponse
+{
+    /**
+     * Handle an incoming request.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \Closure  $next
+     * @return mixed
+     */
+    public function handle(Request $request, Closure $next)
+    {
+        // Set Accept header to application/json
+        $request->headers->set('Accept', 'application/json');
+        $request->headers->set('X-Requested-With', 'XMLHttpRequest');
+        
+        // Handle preflight OPTIONS request
+        if ($request->isMethod('OPTIONS')) {
+            return response('', 204)
+                ->header('Access-Control-Allow-Origin', '*')
+                ->header('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS')
+                ->header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, X-CSRF-TOKEN')
+                ->header('Access-Control-Allow-Credentials', 'true');
+        }
+        
+        // Get the response
+        $response = $next($request);
+        
+        // If the response is not already a JsonResponse, convert it
+        if (!$response instanceof JsonResponse) {
+            $content = $response->getContent();
+            $status = $response->status();
+            $headers = $response->headers->all();
+            
+            // Try to decode the content to see if it's already JSON
+            $data = json_decode($content, true);
+            $isJson = (json_last_error() === JSON_ERROR_NONE);
+            
+            $responseData = [
+                'success' => $status >= 200 && $status < 300,
+                'status' => $status,
+            ];
+            
+            if ($isJson) {
+                $responseData['data'] = $data;
+            } else if (!empty($content)) {
+                $responseData['message'] = $content;
+            }
+            
+            // Create new JSON response
+            $response = new JsonResponse(
+                $responseData,
+                $status,
+                $headers,
+                JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES
+            );
+        }
+        
+        // Add CORS headers to all responses
+        return $response
+            ->header('Content-Type', 'application/json')
+            ->header('Access-Control-Allow-Origin', '*')
+            ->header('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS')
+            ->header('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-Requested-With, X-CSRF-TOKEN')
+            ->header('Access-Control-Allow-Credentials', 'true');
+    }
+}
