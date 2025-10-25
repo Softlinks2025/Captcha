@@ -1,0 +1,56 @@
+name: Deploy Laravel Backend CAPTCHA_PROD
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        php-version: [8.2.9]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up PHP ${{ matrix.php-version }}
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-version }}
+
+      - name: Upload Files to Server via SSH Key
+        uses: appleboy/scp-action@v0.1.4
+        with:
+          host: ${{ secrets.PROD_VM_SSH_HOST }}
+          username: ${{ secrets.PROD_SSH_USER_NAME }}
+          password: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
+          port: 22
+          source: .
+          target: /home/cash2captcha-admin/htdocs/admin.cash2captcha.com/Captcha
+          debug: true
+
+      - name: Run Deployment Commands over SSH Key
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.PROD_VM_SSH_HOST }}
+          username: ${{ secrets.PROD_SSH_USER_NAME }}
+          password: ${{ secrets.PROD_SSH_PRIVATE_KEY }}
+          port: 22
+          script: |
+            cd /home/cash2captcha-admin/htdocs/admin.cash2captcha.com/Captcha
+            composer install --no-interaction --optimize-autoloader --no-dev
+            php artisan key:generate
+            php artisan optimize:clear
+            php artisan cache:clear
+            php artisan route:cache
+            php artisan route:clear
+            php artisan view:clear
+            php artisan config:cache
+            sudo chmod -R 775 /home/cash2captcha-admin/htdocs/admin.cash2captcha.com/Captcha
+            sudo chmod -R 777 /home/cash2captcha-admin/htdocs/admin.cash2captcha.com/Captcha/public/
+            sudo chmod -R 777 /home/cash2captcha-admin/htdocs/admin.cash2captcha.com/Captcha/storage/
+            sudo chmod -R 777 /home/cash2captcha-admin/htdocs/admin.cash2captcha.com/Captcha/bootstrap/
