@@ -50,7 +50,7 @@ jobs:
             php artisan route:clear
             php artisan view:clear
             php artisan config:cache
-            sudo chmod -R 775 /home/cash2captcha-admin/htdocs/admin.cash2captcha.com/Captcha
-            sudo chmod -R 777 /home/cash2captcha-admin/htdocs/admin.cash2captcha.com/Captcha/public/
-            sudo chmod -R 777 /home/cash2captcha-admin/htdocs/admin.cash2captcha.com/Captcha/storage/
-            sudo chmod -R 777 /home/cash2captcha-admin/htdocs/admin.cash2captcha.com/Captcha/bootstrap/
+            chmod -R 775 /home/cash2captcha-admin/htdocs/admin.cash2captcha.com/Captcha
+            chmod -R 777 /home/cash2captcha-admin/htdocs/admin.cash2captcha.com/Captcha/public/
+            chmod -R 777 /home/cash2captcha-admin/htdocs/admin.cash2captcha.com/Captcha/storage/
+            chmod -R 777 /home/cash2captcha-admin/htdocs/admin.cash2captcha.com/Captcha/bootstrap/
