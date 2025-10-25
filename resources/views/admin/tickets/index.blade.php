@@ -549,6 +549,7 @@
                 <a href="{{ route('admin.agent-plans.index') }}" class="nav-link">Agent Plans</a>
                 <a href="{{ route('admin.withdrawal-requests.index') }}" class="nav-link">Withdrawal Requests</a>
                 <a href="{{ route('admin.push-notification.index') }}" class="nav-link">Push Notification</a>
+                <a href="{{ route('admin.tickets.index') }}" class="nav-link">Tickets</a>
                 <a href="{{ route('admin.subadmins.index') }}" class="nav-link">Sub-Admin</a>
 
                 @elseif($user->hasRole('ticket-manager'))
