@@ -627,6 +627,44 @@
                     </div>
                 </div>
 
+                <!-- Toggle Buttons -->
+                <div class="mb-8 flex justify-start">
+                    <div class="inline-flex rounded-lg overflow-hidden border border-gray-200 shadow-sm" style="display: inline-flex;">
+                        <button type="button" id="userRequestsBtn" class="px-8 py-3 text-base font-semibold focus:outline-none transition-all duration-300 ease-in-out transform hover:scale-105" style="
+                            background: linear-gradient(135deg, #4e73df 0%, #224abe 100%);
+                            color: white;
+                            border: 2px solid transparent;
+                            border-image: linear-gradient(135deg, #4e73df 0%, #224abe 100%);
+                            border-image-slice: 1;
+                            min-width: 180px;
+                            white-space: nowrap;
+                            position: relative;
+                            overflow: hidden;
+                        ">
+                            <span class="relative z-10">
+                                <i class="fas fa-users mr-2"></i>
+                                User Requests ({{ $userWithdrawalRequests->count() ?? 0 }})
+                            </span>
+                        </button>
+                        <button type="button" id="agentRequestsBtn" class="px-8 py-3 text-base font-semibold focus:outline-none transition-all duration-300 ease-in-out transform hover:scale-105" style="
+                            background: white;
+                            color: #4e73df;
+                            border: 2px solid transparent;
+                            border-image: linear-gradient(135deg, #4e73df 0%, #224abe 100%);
+                            border-image-slice: 1;
+                            min-width: 180px;
+                            white-space: nowrap;
+                            position: relative;
+                            overflow: hidden;
+                        ">
+                            <span class="relative z-10">
+                                <i class="fas fa-user-tie mr-2"></i>
+                                Agent Requests ({{ $agentWithdrawalRequests->count() ?? 0 }})
+                            </span>
+                        </button>
+                    </div>
+                </div>
+
                 <!-- No Requests Alert -->
                 @if(!isset($withdrawalRequests) && !isset($userWithdrawalRequests) && !isset($agentWithdrawalRequests))
                     <div class="alert-warning">
@@ -643,11 +681,11 @@
                 @endif
 
                 <!-- User Withdrawal Requests -->
+                <div id="userRequestsSection">
                 @if(isset($userWithdrawalRequests) && $userWithdrawalRequests->count())
                     <div class="mb-4" style="background:#f5f7fa; padding: 24px 16px; border-radius: 10px;">
-                       <!-- <h4 style="font-weight:600; margin-bottom:18px;"> USER PAYMENT REQUESTS</h4> -->
                         @foreach ($userWithdrawalRequests as $request)
-                            <div style="background:#fff; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.03); padding:24px 32px; margin-bottom:20px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; position:relative;">
+                            <div class="request-item" style="background:#fff; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.03); padding:24px 32px; margin-bottom:20px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; position:relative;">
                                 <div style="position:absolute; top:18px; left:32px; font-size:15px; font-weight:700; color:#4e73df; letter-spacing:0.5px;">User Payment Request</div>
                                 <div style="min-width:220px; margin-top:32px;">
                                     <div style="font-size:15px; color:#888; margin-bottom:2px;">Request From:</div>
@@ -679,11 +717,12 @@
                     </div>
                 @endif
                 <!-- Agent Withdrawal Requests -->
+                </div>
+                <div id="agentRequestsSection" style="display: none;">
                 @if(isset($agentWithdrawalRequests) && $agentWithdrawalRequests->count())
                     <div class="mb-4" style="background:#f5f7fa; padding: 24px 16px; border-radius: 10px;">
-                      <!-- <h4 style="font-weight:600; margin-bottom:18px;">AGENT PAYMENT REQUESTS</h4> -->
                         @foreach ($agentWithdrawalRequests as $request)
-                            <div style="background:#fff; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.03); padding:24px 32px; margin-bottom:20px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; position:relative;">
+                            <div class="request-item" style="background:#fff; border-radius:8px; box-shadow:0 2px 8px rgba(0,0,0,0.03); padding:24px 32px; margin-bottom:20px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; position:relative;">
                                 <div style="position:absolute; top:18px; left:32px; font-size:15px; font-weight:700; color:#1cc88a; letter-spacing:0.5px;">Agent Payment Request</div>
                                 <div style="min-width:220px; margin-top:32px;">
                                     <div style="font-size:15px; color:#888; margin-bottom:2px;">Request From:</div>
@@ -718,6 +757,58 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Toggle between user and agent requests
+            const userRequestsBtn = document.getElementById('userRequestsBtn');
+            const agentRequestsBtn = document.getElementById('agentRequestsBtn');
+            const userRequestsSection = document.getElementById('userRequestsSection');
+            const agentRequestsSection = document.getElementById('agentRequestsSection');
+
+            function showUserRequests() {
+                // Update User button styles
+                userRequestsBtn.style.background = 'linear-gradient(135deg, #4e73df 0%, #224abe 100%)';
+                userRequestsBtn.style.color = 'white';
+                userRequestsBtn.style.border = '2px solid transparent';
+                userRequestsBtn.style.borderImage = 'linear-gradient(135deg, #4e73df 0%, #224abe 100%)';
+                userRequestsBtn.style.borderImageSlice = '1';
+                
+                // Update Agent button styles
+                agentRequestsBtn.style.background = 'white';
+                agentRequestsBtn.style.color = '#4e73df';
+                agentRequestsBtn.style.border = '2px solid transparent';
+                agentRequestsBtn.style.borderImage = 'linear-gradient(135deg, #4e73df 0%, #224abe 100%)';
+                agentRequestsBtn.style.borderImageSlice = '1';
+                
+                // Toggle sections
+                userRequestsSection.style.display = 'block';
+                agentRequestsSection.style.display = 'none';
+            }
+
+            function showAgentRequests() {
+                // Update Agent button styles
+                agentRequestsBtn.style.background = 'linear-gradient(135deg, #4e73df 0%, #224abe 100%)';
+                agentRequestsBtn.style.color = 'white';
+                agentRequestsBtn.style.border = '2px solid transparent';
+                agentRequestsBtn.style.borderImage = 'linear-gradient(135deg, #4e73df 0%, #224abe 100%)';
+                agentRequestsBtn.style.borderImageSlice = '1';
+                
+                // Update User button styles
+                userRequestsBtn.style.background = 'white';
+                userRequestsBtn.style.color = '#4e73df';
+                userRequestsBtn.style.border = '2px solid transparent';
+                userRequestsBtn.style.borderImage = 'linear-gradient(135deg, #4e73df 0%, #224abe 100%)';
+                userRequestsBtn.style.borderImageSlice = '1';
+                
+                // Toggle sections
+                userRequestsSection.style.display = 'none';
+                agentRequestsSection.style.display = 'block';
+            }
+
+            // Add event listeners
+            userRequestsBtn.addEventListener('click', showUserRequests);
+            agentRequestsBtn.addEventListener('click', showAgentRequests);
+
+            // Initialize with user requests shown by default
+            showUserRequests();
             // Hamburger menu toggle
             document.querySelector('.hamburger').addEventListener('click', () => {
                 document.querySelector('.sidebar').classList.toggle('active');

@@ -267,6 +267,11 @@ Route::post('/test-send-otp', function(\Illuminate\Http\Request $request) {
 
 // API v1 Routes
 Route::prefix('v1')->group(function () {
+    // Public routes - Banners
+    Route::get('banners', [\App\Http\Controllers\Api\BannerController::class, 'index']);
+    Route::get('banners/count', [\App\Http\Controllers\Api\BannerController::class, 'count']);
+    Route::get('banners/{id}', [\App\Http\Controllers\Api\BannerController::class, 'show']);
+    
     // Public routes - Authentication
     Route::post('login', [\App\Http\Controllers\Api\AuthController::class, 'login']);
     Route::post('send-otp', [\App\Http\Controllers\Api\Auth\OtpController::class, 'sendOtp']);

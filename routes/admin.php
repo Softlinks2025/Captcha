@@ -48,6 +48,10 @@ Route::middleware(['auth'])
         Route::get('subscription_plans/create', [SubscriptionPlanController::class, 'create'])->name('subscription_plans.create');
         Route::get('subscription_plans/{subscription_plan}/edit', [SubscriptionPlanController::class, 'edit'])->name('subscription_plans.edit');
         Route::delete('subscription_plans/{subscription_plan}', [SubscriptionPlanController::class, 'destroy'])->name('subscription_plans.destroy');
+        
+        // Banner Management Routes
+        Route::apiResource('banners', \App\Http\Controllers\Admin\BannerController::class);
+        Route::post('banners/{banner}/toggle-status', [\App\Http\Controllers\Admin\BannerController::class, 'toggleStatus'])->name('banners.toggle-status');
         Route::get('push-notification', [\App\Http\Controllers\Admin\PushNotificationController::class, 'index'])->name('push-notification.index');
         Route::post('push-notification/send', [\App\Http\Controllers\Admin\PushNotificationController::class, 'send'])->name('push-notification.send');
         Route::get('push-notification/search-users', [\App\Http\Controllers\Admin\PushNotificationController::class, 'searchUsers'])->name('push-notification.search-users');

@@ -317,6 +317,7 @@
                     <a href="{{ route('admin.withdrawal-requests.index') }}" class="nav-link">Withdrawal Requests</a>
                     <a href="{{ route('admin.push-notification.index') }}" class="nav-link">Push Notification</a>
                     <a href="{{ route('admin.tickets.index') }}" class="nav-link {{ request()->routeIs('admin.tickets.*') ? 'active' : '' }}">Tickets</a>
+                    <!-- <a href="{{ route('admin.banners.index') }}" class="nav-link {{ request()->routeIs('admin.banners.*') ? 'active' : '' }}">Banner Management</a> -->
                     <a href="{{ route('admin.subadmins.index') }}" class="nav-link">Sub-Admin</a>
                 @elseif($user->hasRole('push-subadmin'))
                     <a href="{{ route('admin.push-notification.index') }}" class="nav-link">Push Notification</a>
