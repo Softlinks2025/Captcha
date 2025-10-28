@@ -1,5 +1,4 @@
 name: Deploy Laravel Backend CAPTCHA_PROD
-
 on:
   push:
     branches:
